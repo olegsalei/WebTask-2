@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CRUD</title>
+
+        <script src="../node_modules/jquery/dist/jquery.js"></script>
+        <script src="../node_modules/tether/dist/js/tether.js"></script>
+        <script src="../node_modules/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="scripts/main.js"></script>
+
+        <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
+        <link rel="stylesheet" href="styles/main.css">
+    </head>
+    <body>
+        <h1 class="text-md-center">Title</h1>
+        <div class="container vehicles">
+            <div>
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" placeholder="Bugatti">
+                    </div>
+                    <div class="form-group">
+                        <label for="select">Choose type</label>
+                        <select class="form-control" id="select">
+                            <option>Car</option>
+                            <option>Boat</option>
+                            <option>Plane</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
