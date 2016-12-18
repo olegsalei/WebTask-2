@@ -99,25 +99,11 @@ function Plane() {
 
 $(document).ready(function () {
     var cars = new Car();
-    cars.setType("Car");
-    cars.setCars(["mazda", "tayota", "ford", "volvo", "subaru"]);
-    cars.setColors(["blue", "green", "silver", "pink", "grey"]);
-    cars.setModels(["rx-7", "yaris", "mustang", "s60", "legancy"]);
     var boats = new Boat();
-    boats.setType("Boat");
-    boats.setBoats(["Studdy Beggar", "Big Foot","Titanik", "Cosos bay", "Red jacket", "Catalonia"]);
-    boats.setColors(["orange", "blue", "white", "black", "red", "yellow"]);
-    boats.setModels(["cruiser", "destroyer", "linkor", "aircraft carrier", "atomic", "submarine"]);
     var planes = new Plane();
-    planes.setType("Plane");
-    planes.setPlanes(["Boeing", "F-15", "Mig", "Airbus"]);
-    planes.setColors(["striped", "gray", "white", "pink"]);
-    planes.setModels(["747", "Strike Eagle", "27", "A 380"]);
+    getDataFromJson(cars, boats, planes);
 
-    appendVehicle(cars, boats, planes);
-    deleteVehicle(cars, boats, planes);
-
-    $(".form-inline").submit(function (event) {
+    $(".add-form").submit(function (event) {
         event.preventDefault();
         var name = $("input:first").val();
         var type = $("#select").val();
@@ -138,20 +124,55 @@ $(document).ready(function () {
             planes.setPlanes(temp);
         }
 
+        var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+        var xhr = new XHR();
+        var body = {
+            "cars": cars,
+            "boats": boats,
+            "planes": planes
+        };
+        body = JSON.stringify(body);
+
+        xhr.open("POST", '/addItem', true)
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(body);
+
         deleteOldData();
         appendVehicle(cars, boats, planes);
         deleteVehicle(cars, boats, planes);
     });
-
-    $(".details-form").submit(function (event) {
-       event.preventDefault();
-       var name = $("#newName").val();
-       var color = $("#color").val();
-       var model = $("#model").val();
-
-       alert(name + color + model);
-    });
 });
+
+function getDataFromJson(cars, boats, planes) {
+    var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+    var xhr = new XHR();
+    xhr.open('GET', '/getJson', true);
+
+    xhr.onload = function() {
+        var data = JSON.parse(this.responseText);
+        cars.setCars(data.cars.names);
+        cars.setType("Cars");
+        cars.setColors(data.cars.colors);
+        cars.setModels(data.cars.models);
+
+        boats.setBoats(data.boats.names);
+        boats.setType("Boats");
+        boats.setColors(data.boats.colors);
+        boats.setModels(data.boats.models);
+
+        planes.setPlanes(data.planes.names);
+        planes.setType("Planes");
+        planes.setColors(data.planes.colors);
+        planes.setModels(data.planes.models);
+
+        appendVehicle(cars, boats, planes);
+        deleteVehicle(cars, boats, planes);
+    }
+    xhr.onerror = function() {
+        alert('Ошибка ' + this.status);
+    }
+    xhr.send();
+}
 
 function deleteOldData() {
     $(".model").remove();
@@ -161,27 +182,57 @@ function deleteVehicle(cars, boats, planes) {
     $('.btn-delete').each(function () {
         var item = $(this);
         item.on("click", function () {
-
             var temp = cars.getCars();
+            var colors = cars.getColors();
+            var models = cars.getModels();
             var index = temp.indexOf(item.data().button);
             if(index != -1) {
                 temp.splice(index, 1);
+                colors.splice(index, 1);
+                models.splice(index, 1);
                 cars.setCars(temp);
+                cars.setColors(colors);
+                cars.setModels(models);
             }
 
-            temp = planes.getPlanes();
+            temp= boats.getBoats();
+            colors = boats.getColors();
+            models = boats.getModels();
             index = temp.indexOf(item.data().button);
             if(index != -1) {
                 temp.splice(index, 1);
-                planes.setPlanes(temp);
-            }
-
-            temp = boats.getBoats();
-            index = temp.indexOf(item.data().button);
-            if(index != -1) {
-                temp.splice(index, 1);
+                colors.splice(index, 1);
+                models.splice(index, 1);
                 boats.setBoats(temp);
+                boats.setColors(colors);
+                boats.setModels(models);
             }
+
+            temp= planes.getPlanes();
+            colors = planes.getColors();
+            models = planes.getModels();
+            index = temp.indexOf(item.data().button);
+            if(index != -1) {
+                temp.splice(index, 1);
+                colors.splice(index, 1);
+                models.splice(index, 1);
+                planes.setPlanes(temp);
+                planes.setColors(colors);
+                planes.setModels(models);
+            }
+
+            var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+            var xhr = new XHR();
+            var body = {
+                "cars": cars,
+                "boats": boats,
+                "planes": planes
+            };
+            body = JSON.stringify(body);
+
+            xhr.open("POST", '/deleteItem', true)
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(body);
 
             deleteOldData();
             appendVehicle(cars, boats, planes);
@@ -191,6 +242,10 @@ function deleteVehicle(cars, boats, planes) {
 }
 
 function appendVehicle (cars, boats, planes) {
+    console.log(cars);
+    console.log(boats);
+    console.log(planes);
+
         $(".vehicles").append(
                 '<div class="model">' +
                     '<p>' +
@@ -207,27 +262,67 @@ function appendVehicle (cars, boats, planes) {
                         '<div class="card list-group cars">');
                     for (var j = 0, car = cars.getCars(), color = cars.getColors(), model = cars.getModels(); j < car.length; ++j) {
                         $(".cars").append(
-                            '<div href="#" ' +
-                               'class="list-group-item list-group-item-action list-item">' +
+                            '<a href="#" ' +
+                               'class="list-group-item list-group-item-action list-item" id="cars"><span>' +
                                 car[j] +
-                                '<button class="btn btn-danger btn-delete align-text-top" data-button="' + car[j] + '"><i class="fa fa-times" aria-hidden="true"></i></button>' +
-                                '<form class="form-inline details-form">' +
+                                '</span><button class="btn btn-danger btn-delete align-text-top" data-button="' + car[j] + '"><i class="fa fa-times" aria-hidden="true"></i></button>' +
+                                '<form class="form-inline details-form" id="cars' + j + '">' +
                                     '<div class="form-group">' +
-                                        '<label for="name">Name</label>' +
-                                        '<input type="text" class="form-control" id="name" value="'+ car[j] +'">' +
+                                        '<label for="name">Name:</label>' +
+                                        '<input type="text" class="form-control" id="name" name="newName" value="'+ car[j] +'">' +
                                     '</div>' +
                                     '<div class="form-group">' +
-                                        '<label for="color">Color</label>' +
-                                        '<input type="text" class="form-control" id="color" value="'+ color[j] +'">' +
+                                        '<label for="color">Color:</label>' +
+                                        '<input type="text" class="form-control" id="color" name="newColor" value="'+ color[j] +'">' +
                                     '</div>' +
                                     '<div class="form-group">' +
-                                        '<label for="model">Model</label>' +
-                                        '<input type="text" class="form-control" id="model" value="'+ model[j] +'">' +
+                                        '<label for="model">Model:</label>' +
+                                        '<input type="text" class="form-control" id="model" name="newModel" value="'+ model[j] +'">' +
                                     '</div>' +
                                     '<button type="submit" class="btn btn-primary btn-save">Save</button>' +
                                 '</form>' +
                             '</a>'
                         );
+                        $("#cars" + j).submit(function (event) {
+                            event.preventDefault();
+                            var html = $(this).children();
+                            var type = html.parent().parent().attr('id');
+                            var lastName = html.parent().parent()[0].firstChild.innerText;
+                            var name = html[0].lastChild.value;
+                            var color = html[1].lastChild.value;
+                            var model = html[2].lastChild.value;
+
+                            var temp = cars.getCars();
+                            var index = temp.indexOf(lastName);
+                            console.log(temp[index]);
+                            temp[index] = name;
+                            var colors = cars.getColors();
+                            colors[index] = color;
+                            var models = cars.getModels();
+                            models[index] = model;
+
+                            cars.setCars(temp);
+                            cars.setColors(colors);
+                            cars.setModels(models);
+
+                            var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+                            var xhr = new XHR();
+                            var body = {
+                                "cars": cars,
+                                "boats": boats,
+                                "planes": planes
+                            };
+                            body = JSON.stringify(body);
+
+                            xhr.open("POST", '/updateItem', true)
+                            xhr.setRequestHeader('Content-Type', 'application/json');
+                            xhr.send(body);
+
+                            console.log("Car has been added!");
+                            deleteOldData();
+                            appendVehicle(cars, boats, planes);
+                            deleteVehicle(cars, boats, planes);
+                        });
                     }
         $(".vehicles").append(
                     '</div>' +
@@ -252,26 +347,67 @@ function appendVehicle (cars, boats, planes) {
     for (var j = 0, boat = boats.getBoats(), color = boats.getColors(), model = boats.getModels(); j < boat.length; ++j) {
         $(".boats").append(
             '<a href="#" ' +
-                'class="list-group-item list-group-item-action list-item">' +
+                'class="list-group-item list-group-item-action list-item" id="boats"><span>' +
                  boat[j] +
-                '<button class="btn btn-danger btn-delete" data-button="' + boat[j] + '"><i class="fa fa-times" aria-hidden="true"></i></button>' +
-                '<form class="form-inline details-form">' +
+                '</span><button class="btn btn-danger btn-delete" data-button="' + boat[j] + '"><i class="fa fa-times" aria-hidden="true"></i></button>' +
+                '<form class="form-inline details-form" id="boats' + j + '">' +
                     '<div class="form-group">' +
-                        '<label for="name">Name</label>' +
+                        '<label for="name">Name:</label>' +
                         '<input type="text" class="form-control" id="name" value="'+ boat[j] +'">' +
                     '</div>' +
                     '<div class="form-group">' +
-                        '<label for="color">Color</label>' +
+                        '<label for="color">Color:</label>' +
                         '<input type="text" class="form-control" id="color" value="'+ color[j] +'">' +
                     '</div>' +
                     '<div class="form-group">' +
-                        '<label for="model">Model</label>' +
+                        '<label for="model">Model:</label>' +
                         '<input type="text" class="form-control" id="model" value="'+ model[j] +'">' +
                     '</div>' +
                     '<button type="submit" class="btn btn-primary btn-save">Save</button>' +
                 '</form>' +
             '</a>'
         );
+        $("#boats" + j).submit(function (event) {
+            event.preventDefault();
+            var html = $(this).children();
+            var type = html.parent().parent().attr('id');
+            var lastName = html.parent().parent()[0].firstChild.innerText;
+            var name = html[0].lastChild.value;
+            var color = html[1].lastChild.value;
+            var model = html[2].lastChild.value;
+            console.log(type);
+
+            var temp = boats.getBoats();
+            var index = temp.indexOf(lastName);
+            console.log(temp[index]);
+            temp[index] = name;
+            var colors = boats.getColors();
+            colors[index] = color;
+            var models = boats.getModels();
+            models[index] = model;
+
+            boats.setBoats(temp);
+            boats.setColors(colors);
+            boats.setModels(models);
+
+            var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+            var xhr = new XHR();
+            var body = {
+                "cars": cars,
+                "boats": boats,
+                "planes": planes
+            };
+            body = JSON.stringify(body);
+
+            xhr.open("POST", '/updateItem', true)
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(body);
+
+            console.log("Boat has been added!");
+            deleteOldData();
+            appendVehicle(cars, boats, planes);
+            deleteVehicle(cars, boats, planes);
+        });
     }
         $(".vehicles").append(
                     '</div>' +
@@ -296,27 +432,68 @@ function appendVehicle (cars, boats, planes) {
         for (var j = 0, plane = planes.getPlanes(), color = planes.getColors(), model = planes.getModels(); j < plane.length; ++j) {
             $(".planes").append(
                 '<a href="#" ' +
-                    'class="list-group-item list-group-item-action list-item">' +
+                    'class="list-group-item list-group-item-action list-item" id="planes"><span>' +
                     plane[j] +
-                    '<button class="btn btn-danger btn-delete" data-button="' + plane[j] + '"><i class="fa fa-times"' +
+                    '</span><button class="btn btn-danger btn-delete" data-button="' + plane[j] + '"><i class="fa fa-times"' +
                 ' aria-hidden="true"></i></button>' +
-                    '<form class="form-inline details-form">' +
+                    '<form class="form-inline details-form" id="planes' + j + '">' +
                         '<div class="form-group">' +
-                            '<label for="name">Name</label>' +
+                            '<label for="name">Name:</label>' +
                             '<input type="text" class="form-control" id="name" value="'+ plane[j] +'">' +
                         '</div>' +
                         '<div class="form-group">' +
-                            '<label for="color">Color</label>' +
+                            '<label for="color">Color:</label>' +
                             '<input type="text" class="form-control" id="color" value="'+ color[j] +'">' +
                         '</div>' +
                         '<div class="form-group">' +
-                            '<label for="model">Model</label>' +
+                            '<label for="model">Model:</label>' +
                             '<input type="text" class="form-control" id="model" value="'+ model[j] +'">' +
                         '</div>' +
                         '<button type="submit" class="btn btn-primary btn-save">Save</button>' +
                     '</form>' +
                 '</a>'
             );
+            $("#planes" + j).submit(function (event) {
+                event.preventDefault();
+                var html = $(this).children();
+                var type = html.parent().parent().attr('id');
+                var lastName = html.parent().parent()[0].firstChild.innerText;
+                var name = html[0].lastChild.value;
+                var color = html[1].lastChild.value;
+                var model = html[2].lastChild.value;
+                console.log(type);
+
+                var temp = planes.getPlanes();
+                var index = temp.indexOf(lastName);
+                console.log(temp[index]);
+                temp[index] = name;
+                var colors = planes.getColors();
+                colors[index] = color;
+                var models = planes.getModels();
+                models[index] = model;
+
+                planes.setPlanes(temp);
+                planes.setColors(colors);
+                planes.setModels(models);
+
+                var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+                var xhr = new XHR();
+                var body = {
+                    "cars": cars,
+                    "boats": boats,
+                    "planes": planes
+                };
+                body = JSON.stringify(body);
+
+                xhr.open("POST", '/updateItem', true)
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(body);
+
+                console.log("Plane has been added!");
+                deleteOldData();
+                appendVehicle(cars, boats, planes);
+                deleteVehicle(cars, boats, planes);
+            });
         }
         $(".vehicles").append(
                  '</div>' +

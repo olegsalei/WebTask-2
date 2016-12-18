@@ -1,0 +1,17 @@
+{
+  "cars": {
+    "names": ["Mazda", "Tayota", "Ford", "Volvo", "Subaru"],
+    "colors": ["blue", "green", "silver", "pink", "grey"],
+    "models": ["rx-7", "yaris", "mustang", "s60", "legancy"]
+  },
+  "boats": {
+    "names": ["Studdy Beggar", "Big Foot","Titanik", "Cosos bay", "Red jacket", "Catalonia"],
+    "colors": ["orange", "blue", "white", "black", "red", "yellow"],
+    "models": ["cruiser", "destroyer", "linkor", "aircraft carrier", "atomic", "submarine"]
+  },
+  "planes": {
+    "names": ["Boeing", "F-15", "Mig", "Airbus"],
+    "colors": ["striped", "gray", "white", "pink"],
+    "models": ["747", "Strike Eagle", "27", "A 380"]
+  }
+}
