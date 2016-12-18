@@ -8,6 +8,9 @@ var gulp = require('gulp'),
     livereload = require('gulp-livereload'),
     del = require('del');
 
+const webpack = require('webpack');
+const webpackConfig = require('./webpack.config');    
+
 gulp.task('styles', function() {
     return gulp.src('src/styles/main.css')
         .pipe(autoprefixer('last 2 version'))
@@ -17,12 +20,14 @@ gulp.task('styles', function() {
 });
 
 gulp.task('scripts', function() {
-    return gulp.src('src/scripts/**/*.js')
-        .pipe(concat('main.js'))
-        .pipe(gulp.dest('dist/scripts'))
-        .pipe(uglify())
-        .pipe(gulp.dest('dist/scripts'))
-        .pipe(notify({ message: 'Scripts task complete' }));
+    const config = Object.create(webpackConfig);
+
+    webpack(config, (err, stats) => {
+        if (err) {
+            throw new Error('scripts')
+        }
+        console.log('All good');
+    })
 });
 
 gulp.task('clean', function() {

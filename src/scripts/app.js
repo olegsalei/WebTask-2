@@ -1,101 +1,10 @@
 "use strict";
 
-function Vehicle() {
-    this.type = "";
-    this.colors = [];
-    this.models = [];
+const Car = require('./car');
+const Plane = require('./plane');
+const Boat = require('./boat');
 
-    this.setType = function(type) {
-        this.type = type;
-    }
-    this.getType = function() {
-        return this.type;
-    }
-    this.setColors = function (colorsArr) {
-        this.colors = [];
-        for(var i = 0; i < colorsArr.length; ++i) {
-            this.colors.push(colorsArr[i]);
-        }
-    }
-    this.getColors = function() {
-        return this.colors;
-    }
-    this.setModels = function (modelsArr) {
-        this.models = [];
-        for(var i = 0; i < modelsArr.length; ++i) {
-            this.models.push(modelsArr[i]);
-        }
-    }
-    this.getModels = function() {
-        return this.models;
-    }
-}
-
-function Car() {
-    Vehicle.call(this);
-
-    this.cars = [];
-
-    this.setCars = function (carsArr) {
-        this.cars = [];
-        for(var i = 0; i < carsArr.length; ++i) {
-            this.cars.push(carsArr[i]);
-        }
-    }
-    this.getCars = function () {
-        return this.cars;
-    }
-}
-
-function Boat() {
-    Vehicle.call(this);
-
-    this.boats = [];
-    this.color;
-    this.model;
-
-    this.setColor = function(color) {
-        this.color = color;
-    }
-    this.setModel = function(model) {
-        this.model = model;
-    }
-
-    this.setBoats = function (boatsArr) {
-        this.boats = [];
-        for(var i = 0; i < boatsArr.length; ++i) {
-            this.boats.push(boatsArr[i]);
-        }
-    }
-    this.getBoats = function () {
-        return this.boats;
-    }
-}
-
-function Plane() {
-    Vehicle.call(this);
-
-    this.planes = [];
-    this.color;
-    this.model;
-
-    this.setColor = function(color) {
-        this.color = color;
-    }
-    this.setModel = function(model) {
-        this.model = model;
-    }
-
-    this.setPlanes = function (planesArr) {
-        this.planes = [];
-        for(var i = 0; i < planesArr.length; ++i) {
-            this.planes.push(planesArr[i]);
-        }
-    }
-    this.getPlanes = function () {
-        return this.planes;
-    }
-}
+const util = require('./util');
 
 $(document).ready(function () {
     var cars = new Car();
@@ -151,17 +60,14 @@ function getDataFromJson(cars, boats, planes) {
     xhr.onload = function() {
         var data = JSON.parse(this.responseText);
         cars.setCars(data.cars.names);
-        cars.setType("Cars");
         cars.setColors(data.cars.colors);
         cars.setModels(data.cars.models);
 
         boats.setBoats(data.boats.names);
-        boats.setType("Boats");
         boats.setColors(data.boats.colors);
         boats.setModels(data.boats.models);
 
         planes.setPlanes(data.planes.names);
-        planes.setType("Planes");
         planes.setColors(data.planes.colors);
         planes.setModels(data.planes.models);
 
@@ -261,28 +167,7 @@ function appendVehicle (cars, boats, planes) {
                     '<div class="collapse in" id="collapse1">' +
                         '<div class="card list-group cars">');
                     for (var j = 0, car = cars.getCars(), color = cars.getColors(), model = cars.getModels(); j < car.length; ++j) {
-                        $(".cars").append(
-                            '<a href="#" ' +
-                               'class="list-group-item list-group-item-action list-item" id="cars"><span>' +
-                                car[j] +
-                                '</span><button class="btn btn-danger btn-delete align-text-top" data-button="' + car[j] + '"><i class="fa fa-times" aria-hidden="true"></i></button>' +
-                                '<form class="form-inline details-form" id="cars' + j + '">' +
-                                    '<div class="form-group">' +
-                                        '<label for="name">Name:</label>' +
-                                        '<input type="text" class="form-control" id="name" name="newName" value="'+ car[j] +'">' +
-                                    '</div>' +
-                                    '<div class="form-group">' +
-                                        '<label for="color">Color:</label>' +
-                                        '<input type="text" class="form-control" id="color" name="newColor" value="'+ color[j] +'">' +
-                                    '</div>' +
-                                    '<div class="form-group">' +
-                                        '<label for="model">Model:</label>' +
-                                        '<input type="text" class="form-control" id="model" name="newModel" value="'+ model[j] +'">' +
-                                    '</div>' +
-                                    '<button type="submit" class="btn btn-primary btn-save">Save</button>' +
-                                '</form>' +
-                            '</a>'
-                        );
+                        $(".cars").append(util.html.createCell(car[j], color[j], model[j], 'cars', j));
                         $("#cars" + j).submit(function (event) {
                             event.preventDefault();
                             var html = $(this).children();
@@ -345,28 +230,7 @@ function appendVehicle (cars, boats, planes) {
             '<div class="collapse in" id="collapse2">' +
                 '<div class="card list-group boats">');
     for (var j = 0, boat = boats.getBoats(), color = boats.getColors(), model = boats.getModels(); j < boat.length; ++j) {
-        $(".boats").append(
-            '<a href="#" ' +
-                'class="list-group-item list-group-item-action list-item" id="boats"><span>' +
-                 boat[j] +
-                '</span><button class="btn btn-danger btn-delete" data-button="' + boat[j] + '"><i class="fa fa-times" aria-hidden="true"></i></button>' +
-                '<form class="form-inline details-form" id="boats' + j + '">' +
-                    '<div class="form-group">' +
-                        '<label for="name">Name:</label>' +
-                        '<input type="text" class="form-control" id="name" value="'+ boat[j] +'">' +
-                    '</div>' +
-                    '<div class="form-group">' +
-                        '<label for="color">Color:</label>' +
-                        '<input type="text" class="form-control" id="color" value="'+ color[j] +'">' +
-                    '</div>' +
-                    '<div class="form-group">' +
-                        '<label for="model">Model:</label>' +
-                        '<input type="text" class="form-control" id="model" value="'+ model[j] +'">' +
-                    '</div>' +
-                    '<button type="submit" class="btn btn-primary btn-save">Save</button>' +
-                '</form>' +
-            '</a>'
-        );
+        $(".boats").append(util.html.createCell(boat[j], color[j], model[j], 'boats', j));
         $("#boats" + j).submit(function (event) {
             event.preventDefault();
             var html = $(this).children();
@@ -430,29 +294,7 @@ function appendVehicle (cars, boats, planes) {
             '<div class="collapse in" id="collapse3">' +
                 '<div class="card list-group planes">');
         for (var j = 0, plane = planes.getPlanes(), color = planes.getColors(), model = planes.getModels(); j < plane.length; ++j) {
-            $(".planes").append(
-                '<a href="#" ' +
-                    'class="list-group-item list-group-item-action list-item" id="planes"><span>' +
-                    plane[j] +
-                    '</span><button class="btn btn-danger btn-delete" data-button="' + plane[j] + '"><i class="fa fa-times"' +
-                ' aria-hidden="true"></i></button>' +
-                    '<form class="form-inline details-form" id="planes' + j + '">' +
-                        '<div class="form-group">' +
-                            '<label for="name">Name:</label>' +
-                            '<input type="text" class="form-control" id="name" value="'+ plane[j] +'">' +
-                        '</div>' +
-                        '<div class="form-group">' +
-                            '<label for="color">Color:</label>' +
-                            '<input type="text" class="form-control" id="color" value="'+ color[j] +'">' +
-                        '</div>' +
-                        '<div class="form-group">' +
-                            '<label for="model">Model:</label>' +
-                            '<input type="text" class="form-control" id="model" value="'+ model[j] +'">' +
-                        '</div>' +
-                        '<button type="submit" class="btn btn-primary btn-save">Save</button>' +
-                    '</form>' +
-                '</a>'
-            );
+            $(".planes").append(util.html.createCell(plane[j], color[j], model[j], 'planes', j));
             $("#planes" + j).submit(function (event) {
                 event.preventDefault();
                 var html = $(this).children();
