@@ -166,9 +166,18 @@ function appendVehicle (cars, boats, planes) {
                     '</p>' +
                     '<div class="collapse in" id="collapse1">' +
                         '<div class="card list-group cars">');
-                    for (var j = 0, car = cars.getCars(), color = cars.getColors(), model = cars.getModels(); j < car.length; ++j) {
-                        $(".cars").append(util.html.createCell(car[j], color[j], model[j], 'cars', j));
-                        $("#cars" + j).submit(function (event) {
+    for (var j = 0, car = cars.getCars(), color = cars.getColors(), model = cars.getModels(); j < car.length; ++j) {
+        var carCell = util.html.createCell(car[j], color[j], model[j], 'cars', j);
+        $(".cars").append(carCell);
+        $(".cars").children().last().find('.btn-edit').on("click", {
+            name: car[j]
+            , color: color[j]
+            , model: model[j]
+            , type: 'cars'
+            , index: j
+        }, function (e) {
+            util.html.editCell($(this), e.data.name, e.data.color, e.data.model, e.data.type, e.data.index);
+            $("#cars" + e.data.index).submit(function (event) {
                             event.preventDefault();
                             var html = $(this).children();
                             var type = html.parent().parent().attr('id');
@@ -208,7 +217,8 @@ function appendVehicle (cars, boats, planes) {
                             appendVehicle(cars, boats, planes);
                             deleteVehicle(cars, boats, planes);
                         });
-                    }
+     })
+    }
         $(".vehicles").append(
                     '</div>' +
                 '</div>' +
@@ -230,48 +240,58 @@ function appendVehicle (cars, boats, planes) {
             '<div class="collapse in" id="collapse2">' +
                 '<div class="card list-group boats">');
     for (var j = 0, boat = boats.getBoats(), color = boats.getColors(), model = boats.getModels(); j < boat.length; ++j) {
-        $(".boats").append(util.html.createCell(boat[j], color[j], model[j], 'boats', j));
-        $("#boats" + j).submit(function (event) {
-            event.preventDefault();
-            var html = $(this).children();
-            var type = html.parent().parent().attr('id');
-            var lastName = html.parent().parent()[0].firstChild.innerText;
-            var name = html[0].lastChild.value;
-            var color = html[1].lastChild.value;
-            var model = html[2].lastChild.value;
-            console.log(type);
+        var boatCell = util.html.createCell(boat[j], color[j], model[j], 'boats', j);
+        $(".boats").append(boatCell);
+        $(".boats").children().last().find('.btn-edit').on("click", {
+            name: boat[j]
+            , color: color[j]
+            , model: model[j]
+            , type: 'boats'
+            , index: j
+        }, function (e) {
+            util.html.editCell($(this), e.data.name, e.data.color, e.data.model, e.data.type, e.data.index);
+            $("#boats" + e.data.index).submit(function (event) {
+                event.preventDefault();
+                var html = $(this).children();
+                var type = html.parent().parent().attr('id');
+                var lastName = html.parent().parent()[0].firstChild.innerText;
+                var name = html[0].lastChild.value;
+                var color = html[1].lastChild.value;
+                var model = html[2].lastChild.value;
+                console.log(type);
 
-            var temp = boats.getBoats();
-            var index = temp.indexOf(lastName);
-            console.log(temp[index]);
-            temp[index] = name;
-            var colors = boats.getColors();
-            colors[index] = color;
-            var models = boats.getModels();
-            models[index] = model;
+                var temp = boats.getBoats();
+                var index = temp.indexOf(lastName);
+                console.log(temp[index]);
+                temp[index] = name;
+                var colors = boats.getColors();
+                colors[index] = color;
+                var models = boats.getModels();
+                models[index] = model;
 
-            boats.setBoats(temp);
-            boats.setColors(colors);
-            boats.setModels(models);
+                boats.setBoats(temp);
+                boats.setColors(colors);
+                boats.setModels(models);
 
-            var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
-            var xhr = new XHR();
-            var body = {
-                "cars": cars,
-                "boats": boats,
-                "planes": planes
-            };
-            body = JSON.stringify(body);
+                var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+                var xhr = new XHR();
+                var body = {
+                    "cars": cars,
+                    "boats": boats,
+                    "planes": planes
+                };
+                body = JSON.stringify(body);
 
-            xhr.open("POST", '/updateItem', true)
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(body);
+                xhr.open("POST", '/updateItem', true)
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(body);
 
-            console.log("Boat has been added!");
-            deleteOldData();
-            appendVehicle(cars, boats, planes);
-            deleteVehicle(cars, boats, planes);
-        });
+                console.log("Boat has been added!");
+                deleteOldData();
+                appendVehicle(cars, boats, planes);
+                deleteVehicle(cars, boats, planes);
+            });
+        })
     }
         $(".vehicles").append(
                     '</div>' +
@@ -293,9 +313,18 @@ function appendVehicle (cars, boats, planes) {
             '</p>' +
             '<div class="collapse in" id="collapse3">' +
                 '<div class="card list-group planes">');
-        for (var j = 0, plane = planes.getPlanes(), color = planes.getColors(), model = planes.getModels(); j < plane.length; ++j) {
-            $(".planes").append(util.html.createCell(plane[j], color[j], model[j], 'planes', j));
-            $("#planes" + j).submit(function (event) {
+    for (var j = 0, plane = planes.getPlanes(), color = planes.getColors(), model = planes.getModels(); j < plane.length; ++j) {
+        var planeCell = util.html.createCell(plane[j], color[j], model[j], 'planes', j);
+        $(".planes").append(planeCell);
+        $(".planes").children().last().find('.btn-edit').on("click", {
+            name: plane[j]
+            , color: color[j]
+            , model: model[j]
+            , type: 'planes'
+            , index: j
+        }, function (e) {
+            util.html.editCell($(this), e.data.name, e.data.color, e.data.model, e.data.type, e.data.index);
+            $("#planes" + e.data.index).submit(function (event) {
                 event.preventDefault();
                 var html = $(this).children();
                 var type = html.parent().parent().attr('id');
@@ -303,7 +332,6 @@ function appendVehicle (cars, boats, planes) {
                 var name = html[0].lastChild.value;
                 var color = html[1].lastChild.value;
                 var model = html[2].lastChild.value;
-                console.log(type);
 
                 var temp = planes.getPlanes();
                 var index = temp.indexOf(lastName);
@@ -336,12 +364,13 @@ function appendVehicle (cars, boats, planes) {
                 appendVehicle(cars, boats, planes);
                 deleteVehicle(cars, boats, planes);
             });
-        }
+        })
+    }
         $(".vehicles").append(
                  '</div>' +
                 '</div>' +
             '</div>'
-    );
+            );
 }
 
 function addVehicle (vehicle) {

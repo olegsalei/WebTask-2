@@ -1,4 +1,4 @@
-.btn-delete{
+.btn-delete, .btn-default{
     float: right;
     padding: 5px 10px;
     border-radius: 50% ;
